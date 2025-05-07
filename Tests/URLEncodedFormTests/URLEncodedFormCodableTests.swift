@@ -60,7 +60,7 @@ class URLEncodedFormCodableTests: XCTestCase {
             var name: String
             var type: PetType
         }
-        let ziz = try URLEncodedFormDecoder().decode(Pet.self, from: "name=Ziz&type=cat")
+        let ziz = try URLEncodedFormDecoder().decode(Pet.self, from: "name=Ziz&type=cat".data(using: .utf8)!)
         XCTAssertEqual(ziz.name, "Ziz")
         XCTAssertEqual(ziz.type, .cat)
         let data = try URLEncodedFormEncoder().encode(ziz)
@@ -74,7 +74,7 @@ class URLEncodedFormCodableTests: XCTestCase {
         struct Foo: Codable {
             var flag: Bool
         }
-        let foo = try URLEncodedFormDecoder().decode(Foo.self, from: "flag=1")
+        let foo = try URLEncodedFormDecoder().decode(Foo.self, from: "flag=1".data(using: .utf8)!)
         XCTAssertEqual(foo.flag, true)
     }
 

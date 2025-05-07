@@ -1,4 +1,4 @@
-import Core
+import Foundation
 
 /// Converts `Data` to `[String: URLEncodedFormData]`.
 final class URLEncodedFormParser {
@@ -12,16 +12,15 @@ final class URLEncodedFormParser {
     /// If empty values is false, `foo=` will resolve as `foo: true`
     /// instead of `foo: ""`
     func parse(percentEncoded: String, omitEmptyValues: Bool = false, omitFlags: Bool = false) throws -> [String: URLEncodedFormData] {
-        let partiallyDecoded = percentEncoded.replacingOccurrences(of: "+", with: " ")
+        let partiallyDecoded = percentEncoded.replacingOccurrences(of: "+", with: " ").data(using: .utf8)!
         return try parse(data: partiallyDecoded, omitEmptyValues: omitEmptyValues, omitFlags: omitFlags)
     }
 
     /// Parses the data.
     /// If empty values is false, `foo=` will resolve as `foo: true`
     /// instead of `foo: ""`
-    func parse(data: LosslessDataConvertible, omitEmptyValues: Bool = false, omitFlags: Bool = false) throws -> [String: URLEncodedFormData] {
+    func parse(data: Data, omitEmptyValues: Bool = false, omitFlags: Bool = false) throws -> [String: URLEncodedFormData] {
         var encoded: [String: URLEncodedFormData] = [:]
-        let data = data.convertToData()
 
         for pair in data.split(separator: .ampersand) {
             let data: URLEncodedFormData
@@ -48,7 +47,7 @@ final class URLEncodedFormParser {
                 if omitEmptyValues && token[1].count == 0 {
                     continue
                 }
-                guard let decodedValue = decodedValue else {
+                guard let decodedValue else {
                     throw URLEncodedFormError(identifier: "percentDecoding", reason: "Could not percent decode string value: \(token[1])")
                 }
                 key = try parseKey(data: decodedKey)
@@ -82,9 +81,15 @@ final class URLEncodedFormParser {
         return encoded
     }
 
+    private func parseKey(data string: String) throws -> URLEncodedFormEncodedKey {
+        guard let encoded = string.data(using: .utf8) else {
+            throw URLEncodedFormError(identifier: "malformedKey", reason: "coulnd't convert string to Data to parse key")
+        }
+        return try parseKey(data: encoded)
+    }
+
     /// Parses a `URLEncodedFormEncodedKey` from `Data`.
-    private func parseKey(data dataConvertible: LosslessDataConvertible) throws -> URLEncodedFormEncodedKey {
-        let data = dataConvertible.convertToData()
+    private func parseKey(data: Data) throws -> URLEncodedFormEncodedKey {
         let stringData: Data
         let subKeys: [URLEncodedFormEncodedSubKey]
 
@@ -215,4 +220,12 @@ fileprivate extension Array {
         }
         return self[index]
     }
+}
+
+// https://www.utf8-chartable.de
+extension UInt8 {
+    static let rightSquareBracket: UInt8 = 0x5D
+    static let leftSquareBracket: UInt8 = 0x5B
+    static let ampersand: UInt8 = 0x26
+    static let equals: UInt8 = 0x3D
 }

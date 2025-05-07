@@ -1,3 +1,5 @@
+import Foundation
+
 /// Capable of converting to / from `URLEncodedFormData`.
 protocol URLEncodedFormDataConvertible {
     /// Converts self to `URLEncodedFormData`.
@@ -97,6 +99,12 @@ extension Bool: URLEncodedFormDataConvertible {
             throw URLEncodedFormError(identifier: "bool", reason: "Could not convert to Bool: \(data)")
         }
         return bool
+    }
+}
+
+private extension String {
+    var bool: Bool {
+        self == "1" || self == "true"
     }
 }
 

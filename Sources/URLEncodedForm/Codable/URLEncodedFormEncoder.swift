@@ -1,3 +1,5 @@
+import Foundation
+
 /// Encodes `Encodable` instances to `application/x-www-form-urlencoded` data.
 ///
 ///     print(user) /// User
@@ -10,7 +12,7 @@
 ///
 /// See [Mozilla's](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST) docs for more information about
 /// url-encoded forms.
-public final class URLEncodedFormEncoder: DataEncoder {
+public final class URLEncodedFormEncoder {
     /// Create a new `URLEncodedFormEncoder`.
     public init() {}
 
@@ -24,7 +26,7 @@ public final class URLEncodedFormEncoder: DataEncoder {
     ///     - encodable: Generic `Encodable` object (`E`) to encode.
     /// - returns: Encoded `Data`
     /// - throws: Any error that may occur while attempting to encode the specified type.
-    public func encode<E>(_ encodable: E) throws -> Data where E: Encodable {
+    public func encode(_ encodable: some Encodable) throws -> Data {
         let context = URLEncodedFormDataContext(.dict([:]))
         let encoder = _URLEncodedFormEncoder(context: context, codingPath: [])
         try encodable.encode(to: encoder)
@@ -179,7 +181,7 @@ private final class _URLEncodedFormUnkeyedEncoder: UnkeyedEncodingContainer {
 
     /// Converts the current count to a coding key
     var index: CodingKey {
-        return BasicKey(count)
+        return IntKey(count)
     }
 
     /// Creates a new `_URLEncodedFormUnkeyedEncoder`.

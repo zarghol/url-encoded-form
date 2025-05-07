@@ -1,3 +1,5 @@
+import Foundation
+
 /// Decodes instances of `Decodable` types from `application/x-www-form-urlencoded` `Data`.
 ///
 ///     print(data) // "name=Vapor&age=3"
@@ -10,7 +12,7 @@
 ///
 /// See [Mozilla's](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST) docs for more information about
 /// url-encoded forms.
-public final class URLEncodedFormDecoder: DataDecoder {
+public final class URLEncodedFormDecoder {
     /// The underlying `URLEncodedFormEncodedParser`
     private let parser: URLEncodedFormParser
 
@@ -231,7 +233,7 @@ private final class _URLEncodedFormUnkeyedDecoder: UnkeyedDecodingContainer {
 
     /// Converts the current index to a coding key
     var index: CodingKey {
-        return BasicKey(currentIndex)
+        return IntKey(currentIndex)
     }
 
     /// Create a new `_URLEncodedFormUnkeyedDecoder`
